@@ -1,0 +1,72 @@
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(to right, #3b82f6, #9333ea); /* Track gradient color */
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Thumb styling */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border: 2px solid #3b82f6;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative; /* Needed for positioning the bottom line */
+    transition: transform 0.2s ease;
+}
+
+/* Adding bottom line to the thumb */
+.slider::-webkit-slider-thumb::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; /* Adjust the distance of the line below the thumb */
+    left: 0;
+    right: 0;
+    height: 2px; /* Height of the line */
+    background-color: #3b82f6; /* Same color as the border */
+}
+
+/* For Firefox */
+.slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background-color: #fff;
+    border: 2px solid #3b82f6;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+/* Adding bottom line to the thumb in Firefox */
+.slider::-moz-range-thumb::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #3b82f6;
+}
+
+/* Thumb hover effect */
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2); /* Increase thumb size on hover */
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* Change background color of the track on hover */
+.slider:hover {
+    background: linear-gradient(to right, #3b82f6, #7c3aed);
+}

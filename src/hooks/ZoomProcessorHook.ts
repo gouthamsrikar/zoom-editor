@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react'
-import { ZoomInfo } from '../hooks/ZoomHook';
-import './InputRange.css'
+import { ZoomInfo } from './ZoomHook';
+
 interface VideoEditorProps {
     zoomRange: ZoomInfo[]
 }
 
-const VideoEditor = (props: VideoEditorProps) => {
+const ZoomProcessorHook = (props: VideoEditorProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const canvasRef2 = useRef<HTMLCanvasElement>(null);
 
@@ -56,26 +56,7 @@ const VideoEditor = (props: VideoEditorProps) => {
         }
     }
 
-    // const play = (currentTimeInMilliSeconds: number) => {
-    //     const interval = frameRate;
-    //     const endTime = duration * 1000;
 
-    //     const timer = setInterval(() => {
-    //         setTimeElapsed((prev) => {
-
-    //             if (currentTimeInMilliSeconds + prev >= endTime) {
-    //                 clearInterval(timer);
-
-    //                 console.log("Timer finished!");
-    //                 return prev + currentTimeInMilliSeconds;
-    //             }
-    //             console.log((currentTimeInMilliSeconds + prev + interval) / 1000);
-    //             handleTimeUpdateTime((currentTimeInMilliSeconds + prev + interval) / 1000)
-
-    //             return prev + interval;
-    //         });
-    //     }, interval);
-    // }
 
     let timer: NodeJS.Timeout | null = null;
 
@@ -246,90 +227,16 @@ const VideoEditor = (props: VideoEditorProps) => {
                 console.log("loaded")
                 video.currentTime = 0;
                 video.oncanplay = () => {
-                    // Request animation frame to ensure the video is ready
                     requestAnimationFrame(() => {
                         handleCaptureFrame();
                         handleCaptureFrame2();
                     });
                 };
-                // playAndPause(0)
 
             };
-
-            // setCanvas(0);
-
-
-
         }
     };
 
-
-    return (
-        <div className='flex-grow h-full w-full'>
-            <input
-                type="file"
-                accept="video/*"
-                onChange={handleVideoUpload}
-                style={{ marginBottom: "10px" }}
-            />
-
-            {videoSrc && (
-                <div className='w-full'>
-
-                    <div className="flex-row">
-                        <button onClick={() => {
-                            const video = videoRef.current;
-                            console.log(video.currentTime * 1000)
-                            playAndPause(video.currentTime * 1000);
-                        }}>
-                            {isPlaying ? "pause" : "play"}
-                        </button>
-                    </div>
-
-                    <div className="flex p-4 w-full gap-6">
-                        <canvas
-                            ref={canvasRef}
-                            style={{
-                                marginTop: "10px",
-                                border: "1px solid black",
-                                display: "block",
-                                width: "45vw"
-                            }}
-                        />
-                        <canvas
-                            ref={canvasRef2}
-                            style={{
-                                marginTop: "10px",
-                                border: "1px solid black",
-                                display: "block",
-                                height: "20vh"
-
-                            }}
-                        />
-                    </div>
-
-                    <div style={{ marginTop: "10px" }}>
-                        <input
-                            type="range"
-                            min="0"
-                            max={duration}
-                            step="0.01"
-                            value={currentTime}
-                            onChange={(e) => {
-                                handleTimeUpdateTime(parseFloat(e.target.value))
-                            }}
-                            style={{ width: "100%" }}
-                            className='w-full slider'
-                        />
-                        <div>
-                            Time: {currentTime.toFixed(2)} / {duration.toFixed(2)} seconds
-                        </div>
-                    </div>
-
-                </div>
-            )}
-        </div>
-    )
 }
 
-export default VideoEditor
+export default ZoomProcessorHook

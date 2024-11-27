@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.mac-like-bg {
+    background: radial-gradient(circle at -80% -80%, #f6a3af, transparent 60%),
+        radial-gradient(circle at 300% 300%, #7db2fc, transparent 10%),
+        radial-gradient(circle at 150% 150%, #949fff, black 75%);
+}
