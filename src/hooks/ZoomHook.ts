@@ -22,7 +22,7 @@ const useZoomHook = (videoLengthInSeconds: number) => {
         );
         if (overlap) {
             alert("New range overlaps with an existing range.");
-            return;
+            return false;
         }
 
 
@@ -41,6 +41,8 @@ const useZoomHook = (videoLengthInSeconds: number) => {
 
 
         SetZoomRange(newRanges);
+
+        return true
 
     };
 

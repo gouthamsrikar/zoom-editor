@@ -4,48 +4,31 @@ import Checkbox from '../widgets/CheckBox'
 import { ZoomInfo } from '../hooks/ZoomHook'
 import FilledButton from '../widgets/FilledButton'
 
-interface SideBarProps {
-    zoomInfo: ZoomInfo,
-    boundaries: {
-        leftLimit: number,
-        rightLimit: number,
-    }
-    onchange?: (zoomInfo: ZoomInfo) => void
+interface CreateZoomBlockDialogProps {
+    onSave: (zoomInfo: ZoomInfo) => void
+    videoLength: number
 }
 
 
 
-const SideBar = (props: SideBarProps) => {
+const CreateZoomBlockDialog = (props: CreateZoomBlockDialogProps) => {
 
     const [startTime, setStartTime] = useState<string | undefined>();
     const [endTime, setEndTime] = useState<string | undefined>();
     const [zoomX, setX] = useState<string | undefined>();
     const [zoomY, setY] = useState<string | undefined>();
     const [scaleFactor, setScaleFactor] = useState<string | undefined>();
-    const [animated, setAnimated] = useState(false);
+    const [animated, setAnimated] = useState(true);
     const [scaleDuration, setScaleDuration] = useState<string | undefined>();
 
 
 
-    useEffect(() => {
-        setStartTime(props.zoomInfo.start.toFixed(2))
-        setEndTime(props.zoomInfo.end.toFixed(2))
-        setX(props.zoomInfo.zoomX.toFixed(2))
-        setY(props.zoomInfo.zoomY.toFixed(2))
-        setScaleFactor(props.zoomInfo.scale.toFixed(2))
-        setAnimated(props.zoomInfo.scalingDuration > 0)
-        setScaleDuration(props.zoomInfo.scalingDuration.toFixed(2))
-    }, [
-        props.zoomInfo.start,
-        props.zoomInfo.end,
-        props.zoomInfo.zoomX,
-        props.zoomInfo.zoomY,
-        props.zoomInfo.scalingDuration,
-        props.zoomInfo.scale
-    ]);
+
 
     return (
-        <div className='flex-col h-fit w-fit   flex gap-4  bg-BG_GROUP_BLACK glass-effect p-4'>
+        <div className='flex-col rounded-2xl h-fit w-fit border border-BG_BORDER   flex gap-4  bg-BG_GROUP_BLACK glass-effect p-4'>
+            <p className='text-white text-xl px-1'>Zoom Parameters
+            </p>
             <div className='flex gap-2'>
                 <div className='flex-col flex gap-2'>
                     <p className='text-white text-xs px-1'>Start time
@@ -57,7 +40,7 @@ const SideBar = (props: SideBarProps) => {
                             setStartTime(e);
                         }}
                         error={
-                            startTime && Number(startTime) < props.boundaries.leftLimit ? `end < ${props.boundaries.leftLimit.toFixed(2)}` : undefined
+                            startTime && Number(startTime) < 0 ? `start > 0` : undefined
                         }
                     />
                 </div>
@@ -70,7 +53,7 @@ const SideBar = (props: SideBarProps) => {
                             setEndTime(e)
                         }}
                         error={
-                            endTime && Number(endTime) > props.boundaries.rightLimit ? `end > ${props.boundaries.rightLimit.toFixed(2)}` : undefined
+                            endTime && Number(endTime) > props.videoLength ? `end > ${props.videoLength}` : undefined
                         }
                     />
                 </div>
@@ -128,13 +111,13 @@ const SideBar = (props: SideBarProps) => {
             </div>
 
             <FilledButton
-                text='Save'
+                text='Create Zoom block'
                 onClick={
                     (
 
-                        (startTime && Number(startTime) >= props.boundaries.leftLimit)
+                        (startTime && Number(startTime) >= 0)
                         &&
-                        (endTime && Number(endTime) <= props.boundaries.rightLimit)
+                        (endTime && Number(endTime) <= props.videoLength)
                         &&
                         (Number(startTime) < Number(endTime))
                         &&
@@ -147,17 +130,17 @@ const SideBar = (props: SideBarProps) => {
                         (!animated || (animated && scaleDuration && Number(scaleDuration) > 0))
                     ) ?
                         () => {
-                            if (props.onchange)
-                                props.onchange(
-                                    {
-                                        start: Number(startTime),
-                                        end: Number(endTime),
-                                        zoomX: Number(zoomX),
-                                        zoomY: Number(zoomY),
-                                        scale: Number(scaleFactor),
-                                        scalingDuration: animated ? Number(scaleDuration) : 0
-                                    }
-                                )
+
+                            props.onSave(
+                                {
+                                    start: Number(startTime),
+                                    end: Number(endTime),
+                                    zoomX: Number(zoomX),
+                                    zoomY: Number(zoomY),
+                                    scale: Number(scaleFactor),
+                                    scalingDuration: animated ? Number(scaleDuration) : 0
+                                }
+                            )
                         } : undefined}
             />
 
@@ -172,10 +155,11 @@ const SideBar = (props: SideBarProps) => {
             </div>
 
 
-
-
         </div>
     )
 }
 
-export default SideBar
+
+
+
+export default CreateZoomBlockDialog

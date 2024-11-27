@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import VideoEditor from '../components/VideoEditor'
 import TimelineEditor from '../components/TimelineEditor'
 import useZoomHook from '../hooks/ZoomHook'
@@ -8,8 +8,15 @@ import TextField from '../widgets/Textfield'
 import SideBar from '../components/SideBar'
 import FilledButton from '../widgets/FilledButton'
 import Divider from '../widgets/Divider'
+import { start } from 'repl'
+import CreateZoomBlockDialog from '../components/CreateZoomBlockDialog'
 
 const EditorPage = () => {
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const openDialog = () => setIsDialogOpen(true);
+    const closeDialog = () => setIsDialogOpen(false);
 
     const zoomHook = useZoomHook(50)
     return (
@@ -37,25 +44,19 @@ const EditorPage = () => {
                         updateRange={zoomHook.updateRange}
                     />
                 </div>
-
-                {/* <TimelineEditor
-
-                    videoLengthInSeconds={49}
-
-                    ranges={zoomHook.zoomRange}
-                    getMovementBoundaries={zoomHook.getMovementBoundaries}
-                    updateRange={zoomHook.updateRange}
-                /> */}
-                <button onClick={() => zoomHook.addRange({
-                    start: 5,
-                    end: 10,
-                    scale: 3,
-                    scalingDuration: 1,
-                    zoomX: 4000,
-                    zoomY: 2000
-                })}>Add Range</button>
             </div>
-            <div className='w-[240px] border border-BG_BORDER h-full bg-BG_GROUP_BLACK'>
+            <div className='w-[300px] border border-BG_BORDER h-full bg-BG_GROUP_BLACK flex flex-col'>
+                <div className='p-2'>
+                    <FilledButton
+                        text='add zoom block'
+                        onClick={() => {
+                            openDialog()
+
+                        }}
+                    />
+                </div>
+                <Divider />
+
                 {zoomHook.activeIndex !== null ? (<SideBar
                     zoomInfo={zoomHook.zoomRange[zoomHook.activeIndex]}
                     boundaries={zoomHook.getMovementBoundaries(zoomHook.activeIndex)}
@@ -64,21 +65,12 @@ const EditorPage = () => {
                     }}
                 />) : <></>}
 
-                <Divider />
+                <div className='flex flex-col flex-grow'>
 
-                <div className='p-2'>
-                    <FilledButton
-                    text='add zoom block'
-                        onClick={() => zoomHook.addRange({
-                            start: 5,
-                            end: 10,
-                            scale: 3,
-                            scalingDuration: 1,
-                            zoomX: 4000,
-                            zoomY: 2000
-                        })}
-                    />
                 </div>
+
+
+
 
 
 
@@ -87,24 +79,19 @@ const EditorPage = () => {
             </div>
 
 
-
-            {/* <div className='h-fit bg-BG_GROUP_BLACK/80 p-4 '>
-
-            </div> */}
-
-
-
-
-            {/* <ZoomParameterDialog
-
-                maxX={30}
-                maxY={10}
-                maxTime={100}
-                minTime={10}
-                onClose={() => { }}
-                onSubmit={() => { }}
-            /> */}
-
+            {isDialogOpen && (
+                <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center">
+                    <CreateZoomBlockDialog
+                        videoLength={50}
+                        onSave={(e) => {
+                            const isCreated = zoomHook.addRange(e)
+                            if (isCreated) {
+                                closeDialog()
+                            }
+                        }}
+                    />
+                </div>
+            )}
 
 
         </div>
