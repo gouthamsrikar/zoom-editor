@@ -4,6 +4,10 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ['"PT Sans"', 'sans-serif'],
+      metropolis: ['Metropolis', 'sans-serif'],
+    },
     extend: {
       colors: {
         BG_GREY: '#676767',

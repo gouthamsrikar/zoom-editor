@@ -3,19 +3,21 @@ import TextField from '../widgets/Textfield'
 import Checkbox from '../widgets/CheckBox'
 import { ZoomInfo } from '../hooks/ZoomHook'
 import FilledButton from '../widgets/FilledButton'
-
-interface SideBarProps {
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+interface ZoomEditWidgetProps {
     zoomInfo: ZoomInfo,
     boundaries: {
         leftLimit: number,
         rightLimit: number,
     }
     onchange?: (zoomInfo: ZoomInfo) => void
+    onDelete: () => void
+
 }
 
 
 
-const SideBar = (props: SideBarProps) => {
+const ZoomEditWidget = (props: ZoomEditWidgetProps) => {
 
     const [startTime, setStartTime] = useState<string | undefined>();
     const [endTime, setEndTime] = useState<string | undefined>();
@@ -44,8 +46,48 @@ const SideBar = (props: SideBarProps) => {
         props.zoomInfo.scale
     ]);
 
+    const startTimeError = startTime && (Number(startTime) < props.zoomInfo.start ? `start cannot be less than ${props.zoomInfo.start}` :
+        Number(startTime) >= props.zoomInfo.end ? `start cannot be greater than ${props.zoomInfo.end}` :
+            endTime && (Number(startTime) > Number(endTime)) ? "start time cannot be greater than end time" :
+                undefined
+    );
+
+    const endTimeError = endTime && (Number(endTime) < props.zoomInfo.start ? `end cannot be less than ${props.zoomInfo.start}` :
+        Number(endTime) > props.zoomInfo.end ? `end cannot be greater than ${props.zoomInfo.end}` :
+            startTime && (Number(startTime) > Number(endTime)) ? "End time time cannot be less than start time" :
+                undefined
+    );
+
+    const zoomXerror = zoomX && (Number(zoomX) < 0 ? "X co-ordinate cannot be less than 0" : undefined);
+    const zoomYerror = zoomY && (Number(zoomY) < 0 ? "Y co-ordinate cannot be less than 0" : undefined);
+
+    const scaleFactorYerror = scaleFactor && (Number(scaleFactor) <= 1 ? "zoom factor cannot be less than or equal 1 if zooming" : undefined);
+
+    const scaleDurationError = (animated && scaleDuration) ? (Number(scaleDuration) < 0 ? 'zoom duration time cannot be less than 0' :
+        startTime && endTime && (Number(scaleDuration) > Number(endTime) - Number(startTime)) ? 'zoom duration can be greater than the whole time block duration'
+            : undefined) : undefined;
+
+
+    const [error, setError] = useState<String | undefined>(undefined);
+
+    useEffect(() => {
+        setError(startTimeError ?? endTimeError ?? zoomXerror ?? zoomYerror ?? scaleFactorYerror ?? scaleDurationError)
+    }, [
+        startTimeError,
+        endTimeError,
+        zoomXerror,
+        zoomYerror,
+        scaleFactorYerror,
+        scaleDurationError,
+    ])
+
     return (
         <div className='flex-col h-fit w-fit   flex gap-4  bg-BG_GROUP_BLACK glass-effect p-4'>
+            <div className='flex gap-2 justify-between items-center'>
+                <p className='text-white text-xl px-1'>Zoom Parameters
+                </p>
+                <DeleteOutlineIcon onClick={props.onDelete} className='text-ERROR_RED' />
+            </div>
             <div className='flex gap-2'>
                 <div className='flex-col flex gap-2'>
                     <p className='text-white text-xs px-1'>Start time
@@ -57,7 +99,7 @@ const SideBar = (props: SideBarProps) => {
                             setStartTime(e);
                         }}
                         error={
-                            startTime && Number(startTime) < props.boundaries.leftLimit ? `end < ${props.boundaries.leftLimit.toFixed(2)}` : undefined
+                            startTimeError !== undefined ? " " : undefined
                         }
                     />
                 </div>
@@ -70,7 +112,7 @@ const SideBar = (props: SideBarProps) => {
                             setEndTime(e)
                         }}
                         error={
-                            endTime && Number(endTime) > props.boundaries.rightLimit ? `end > ${props.boundaries.rightLimit.toFixed(2)}` : undefined
+                            endTimeError !== undefined ? " " : undefined
                         }
                     />
                 </div>
@@ -83,6 +125,9 @@ const SideBar = (props: SideBarProps) => {
                         value={zoomX}
                         textInputType='number'
                         onChange={(e) => { setX(e) }}
+                        error={
+                            zoomXerror !== undefined ? " " : undefined
+                        }
                     />
                 </div>
                 <div className='flex-col flex gap-2'>
@@ -91,6 +136,9 @@ const SideBar = (props: SideBarProps) => {
                         value={zoomY}
                         textInputType='number'
                         onChange={(e) => { setY(e) }}
+                        error={
+                            zoomYerror !== undefined ? " " : undefined
+                        }
                     />
                 </div>
             </div>
@@ -102,6 +150,9 @@ const SideBar = (props: SideBarProps) => {
                     onChange={(e) => {
                         setScaleFactor(e)
                     }}
+                    error={
+                        scaleFactorYerror !== undefined ? " " : undefined
+                    }
                 />
             </div>
             <div className='flex-col flex gap-2'>
@@ -122,44 +173,49 @@ const SideBar = (props: SideBarProps) => {
                     textInputType={'number'}
                     onChange={(e) => { setScaleDuration(e) }}
                     error={
-                        scaleDuration && Number(scaleDuration) < 0 ? `scaleDuration < 0` : undefined
+                        scaleDurationError !== undefined ? " " : undefined
                     }
                 />)}
             </div>
+            <div>
+                <p className="px-[16px] text-center text-ERROR_RED font-normal  text-[8px] h-[16px] bg-red ">
+                    {error}
+                </p>
+                <FilledButton
+                    text='Save'
+                    onClick={
+                        (
 
-            <FilledButton
-                text='Save'
-                onClick={
-                    (
-
-                        (startTime && Number(startTime) >= props.boundaries.leftLimit)
-                        &&
-                        (endTime && Number(endTime) <= props.boundaries.rightLimit)
-                        &&
-                        (Number(startTime) < Number(endTime))
-                        &&
-                        (zoomX && Number(zoomX) > 0)
-                        &&
-                        (zoomY && Number(zoomY) > 0)
-                        &&
-                        (scaleFactor && Number(scaleFactor) > 1)
-                        &&
-                        (!animated || (animated && scaleDuration && Number(scaleDuration) > 0))
-                    ) ?
-                        () => {
-                            if (props.onchange)
-                                props.onchange(
-                                    {
-                                        start: Number(startTime),
-                                        end: Number(endTime),
-                                        zoomX: Number(zoomX),
-                                        zoomY: Number(zoomY),
-                                        scale: Number(scaleFactor),
-                                        scalingDuration: animated ? Number(scaleDuration) : 0
-                                    }
-                                )
-                        } : undefined}
-            />
+                            (startTime && Number(startTime) >= props.boundaries.leftLimit)
+                            &&
+                            (endTime && Number(endTime) <= props.boundaries.rightLimit)
+                            &&
+                            (Number(startTime) < Number(endTime))
+                            &&
+                            (zoomX && Number(zoomX) >= 0)
+                            &&
+                            (zoomY && Number(zoomY) >= 0)
+                            &&
+                            (scaleFactor && Number(scaleFactor) > 1)
+                            &&
+                            (!animated || (animated && scaleDuration && Number(scaleDuration) > 0))
+                            && (!error)
+                        ) ?
+                            () => {
+                                if (props.onchange)
+                                    props.onchange(
+                                        {
+                                            start: Number(startTime),
+                                            end: Number(endTime),
+                                            zoomX: Number(zoomX),
+                                            zoomY: Number(zoomY),
+                                            scale: Number(scaleFactor),
+                                            scalingDuration: animated ? Number(scaleDuration) : 0
+                                        }
+                                    )
+                            } : undefined}
+                />
+            </div>
 
             <div className='text-white/60 text-[8px]'>
                 <p >
@@ -178,4 +234,4 @@ const SideBar = (props: SideBarProps) => {
     )
 }
 
-export default SideBar
+export default ZoomEditWidget

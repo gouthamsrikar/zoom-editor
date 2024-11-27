@@ -23,12 +23,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
     max,
     step,
 }) => {
-    //   const { theme } = useTheme();
 
-    // Define styles based on the theme
-    const themeClasses = 'dark' === 'dark'
-        ? 'bg-gray-800 text-white border-gray-600 placeholder-gray-400'
-        : 'bg-white text-gray-900 border-gray-300 placeholder-gray-500';
+    const themeClasses =
+        'bg-gray-800 text-white border-gray-600 placeholder-gray-400';
 
     return (
         <input

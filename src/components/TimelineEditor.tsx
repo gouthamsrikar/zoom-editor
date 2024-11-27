@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { ZoomInfo } from '../hooks/ZoomHook';
 
-type Range = { start: number; end: number };
 
 interface TimelineEditorProps {
     videoLengthInSeconds: number
@@ -27,8 +26,8 @@ const TimelineEditor = (props: TimelineEditorProps) => {
             }
         };
 
-        updateWidth(); // Initial width
-        window.addEventListener('resize', updateWidth); // Update on resize
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
         return () => window.removeEventListener('resize', updateWidth);
     }, []);
 
@@ -37,11 +36,12 @@ const TimelineEditor = (props: TimelineEditorProps) => {
 
     return (
         <div
+
             ref={containerRef}
-            className='flex w-full flex-grow '
+            className='flex w-fit flex-grow m-2'
             style={{
                 position: "relative",
-                height: "100px",
+                height: "80px",
             }}
         >
             {props.ranges.map((range, index) => {
@@ -54,17 +54,22 @@ const TimelineEditor = (props: TimelineEditorProps) => {
 
                 return (
                     <Rnd
-
+                        className='opacity-70'
                         key={index}
                         bounds="parent"
                         size={{ width: `${widthInPercentage}%`, height: '100%' }}
                         position={{ x: (startPostion) * parentWidth, y: 0 }}
                         onDrag={(e, d) => {
                             const parentNode = d.node.parentNode as HTMLElement;
-                            const newStart = (d.x / parentNode.offsetWidth) * 100;
-                            const newEnd = newStart + (((range.end - range.start) / props.videoLengthInSeconds) * 100);
-                            const start = (newStart * props.videoLengthInSeconds) / 100;
-                            const end = (newEnd * props.videoLengthInSeconds) / 100;
+                            var newStart = ((d.x / parentNode.offsetWidth) * 100);
+                            newStart = Number(newStart.toExponential(2))
+                            const gap = (((range.end - range.start) / props.videoLengthInSeconds) * 100)
+                            const newEnd = newStart + Number(gap.toExponential(2));
+                            var start = (newStart * props.videoLengthInSeconds) / 100;
+                            start = Number(start.toExponential(2))
+                            var end = (newEnd * props.videoLengthInSeconds) / 100;
+                            end = Number(end.toExponential(2))
+
 
                             if (start >= leftLimit && end <= rightLimit) {
                                 props.updateRange(index,
@@ -98,23 +103,24 @@ const TimelineEditor = (props: TimelineEditorProps) => {
                             const newEnd = newStart + newWidth;
 
 
+                            var start = (newStart * props.videoLengthInSeconds) / 100;
+                            var end = (newEnd * props.videoLengthInSeconds) / 100;
 
-
-                            const start = (newStart * props.videoLengthInSeconds) / 100;
-                            const end = (newEnd * props.videoLengthInSeconds) / 100;
-
-
+                            if (direction === 'left') {
+                                end = range.end
+                            } else if (direction === 'right') {
+                                start = range.start
+                            }
 
                             if (
                                 (direction === 'left' && start >= leftLimit && end <= rightLimit) ||
                                 (direction === 'right' && end <= rightLimit && start >= leftLimit)
                             ) {
 
-
                                 props.updateRange(index,
                                     {
-                                        start: start,
-                                        end: end,
+                                        start: Number(start.toExponential(2)),
+                                        end: Number(end.toExponential(2)),
                                         scale: range.scale,
                                         scalingDuration: range.scalingDuration,
                                         zoomX: range.zoomX,
@@ -125,23 +131,35 @@ const TimelineEditor = (props: TimelineEditorProps) => {
                         }}
                         style={{
                             position: "absolute",
-                            // backgroundColor: "0xff0000000",
-                            // border: "1px solid blue",
-
+                        }}
+                        resizeHandleStyles={{
+                            left: {
+                                width: "10px",
+                                backgroundColor: props.activeIndex === index ? "#6B67F2FF" : "#ffffff",
+                                height: "100%",
+                                borderRadius: "5px 0px 0px 5px"
+                            },
+                            right: {
+                                width: "10px",
+                                backgroundColor: props.activeIndex === index ? "#6B67F2FF" : "#ffffff",
+                                height: "100%",
+                                borderRadius: "0px 5px 5px 0px"
+                            }
                         }}
 
                     >
-                        <div className='h-full w-full bg-[#EEFF88] rounded-lg px-3 py-1'
+                        <div className='h-full w-full  px-1 py-1'
                             onClick={() => {
                                 props.updateRange(index, range);
                             }}
                             style={{
-                                backgroundColor: props.activeIndex === index ? "#EEFF88" : "#676767"
+                                backgroundColor: props.activeIndex === index ? "#6B67F2FF" : "#ffffff",
+
                             }}
                         >
-                            <div className='bg-BG_CANVAS text-black h-full w-full rounded-lg'>
-                                <p> start time {range.start.toFixed(2)}</p>
-                                <p> end time {range.end.toFixed(2)}</p>
+                            <div className='bg-BG_GROUP_BLACK  text-white text-[8px] p-2 h-full w-full rounded-[8px]'>
+                                <p className='px-1'> start time {range.start.toFixed(2)}</p>
+                                <p className='px-1'> end time {range.end.toFixed(2)}</p>
                             </div>
                         </div>
                     </Rnd>

@@ -14,6 +14,11 @@ const useZoomHook = (videoLengthInSeconds: number) => {
     const [zoomRange, SetZoomRange] = useState<ZoomInfo[]>([]);
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
+    const deleteZoomRangeItem = (i: number) => {
+        setActiveIndex(null)
+        SetZoomRange(prev => prev.filter((_, index) => index !== i));
+    };
+
 
     const addRange = (zoomInfo: ZoomInfo) => {
 
@@ -62,7 +67,7 @@ const useZoomHook = (videoLengthInSeconds: number) => {
 
 
 
-    return { zoomRange, addRange, updateRange, getMovementBoundaries, activeIndex }
+    return { zoomRange, addRange, updateRange, getMovementBoundaries, deleteZoomRangeItem, activeIndex }
 }
 
 

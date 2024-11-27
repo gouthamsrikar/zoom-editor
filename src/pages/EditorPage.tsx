@@ -1,93 +1,115 @@
-import React, { useState } from 'react'
-import VideoEditor from '../components/VideoEditor'
+import React, { useRef, useState } from 'react'
 import TimelineEditor from '../components/TimelineEditor'
 import useZoomHook from '../hooks/ZoomHook'
-import ZoomParameterDialog from '../components/ZoomParameterDialog'
-import CustomInput from '../components/CustomInput'
-import TextField from '../widgets/Textfield'
-import SideBar from '../components/SideBar'
-import FilledButton from '../widgets/FilledButton'
+import ZoomEditWidget from '../components/ZoomEditWidget'
 import Divider from '../widgets/Divider'
-import { start } from 'repl'
 import CreateZoomBlockDialog from '../components/CreateZoomBlockDialog'
+import VideoPreview from '../components/VideoPreview'
+import VideoExporter from '../components/VideoExporter'
+import RightSideBar from '../components/RightSideBar'
+import CropFreeIcon from '@mui/icons-material/CropFree';
+import VerticalDivider from '../widgets/VerticalDivider'
+interface EditorPageProps {
+    videoSrc: string
+    videoLength: number
+}
 
-const EditorPage = () => {
+const EditorPage = (props: EditorPageProps) => {
 
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isZoomDialogOpen, setIsZoomDialogOpen] = useState(false);
+    const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
-    const openDialog = () => setIsDialogOpen(true);
-    const closeDialog = () => setIsDialogOpen(false);
+    const canvasRef2 = useRef<HTMLCanvasElement>(null);
 
-    const zoomHook = useZoomHook(50)
+
+
+    const zoomHook = useZoomHook(props.videoLength)
     return (
-        <div className='h-screen w-screen flex bg-BG_CANVAS'>
-            {/* <div className="flex items-center justify-center  bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500">
-                <div className="glass-effect bg-BG_GREY/15 p-8 rounded-lg shadow-lg">
-                    <p className="text-white text-xl font-semibold">Cool Glass Effect!</p>
-                </div>
-            </div> */}
+        <div className='h-screen w-screen flex bg-BG_CANVAS/50 glass-effect'>
 
 
 
-            <div className=' p-4 rounded-2xl flex-col flex-grow h-full'>
-                <div className=' flex-grow'>
-                    <VideoEditor
+            <div className='rounded-2xl flex-col flex flex-grow h-full'>
+                <div className='p-4 flex-grow flex flex-col'>
+                    <VideoPreview
+                        videoSrc={props.videoSrc}
+                        canvasRef2={canvasRef2}
                         zoomRange={zoomHook.zoomRange}
                     />
                 </div>
-                <div className=''>
+                <div className='bg-BG_GROUP_BLACK flex border justify-items-center items-center border-x-0 border-b-0 border-t-BG_BORDER'>
+                    <div className='m-4'>
+                        <CropFreeIcon />
+                    </div>
+                    <VerticalDivider />
+
                     <TimelineEditor
                         activeIndex={zoomHook.activeIndex}
-                        videoLengthInSeconds={50}
+                        videoLengthInSeconds={props.videoLength}
                         ranges={zoomHook.zoomRange}
                         getMovementBoundaries={zoomHook.getMovementBoundaries}
                         updateRange={zoomHook.updateRange}
                     />
                 </div>
             </div>
-            <div className='w-[300px] border border-BG_BORDER h-full bg-BG_GROUP_BLACK flex flex-col'>
-                <div className='p-2'>
-                    <FilledButton
-                        text='add zoom block'
-                        onClick={() => {
-                            openDialog()
 
-                        }}
-                    />
-                </div>
+            <RightSideBar
+                onAddZoomBlock={() => {
+                    setIsZoomDialogOpen(true)
+                }}
+                onExport={() => {
+                    setIsExportDialogOpen(true)
+                }}
+            >
+                <canvas
+                    ref={canvasRef2}
+                    style={{
+
+                        display: "block",
+                        height: "20vh"
+                    }}
+                />
                 <Divider />
-
-                {zoomHook.activeIndex !== null ? (<SideBar
+                {zoomHook.activeIndex !== null ? (<ZoomEditWidget
                     zoomInfo={zoomHook.zoomRange[zoomHook.activeIndex]}
                     boundaries={zoomHook.getMovementBoundaries(zoomHook.activeIndex)}
                     onchange={(e) => {
                         zoomHook.updateRange(zoomHook.activeIndex!, e)
                     }}
+                    onDelete={() => {
+                        zoomHook.deleteZoomRangeItem(zoomHook.activeIndex!)
+                    }}
                 />) : <></>}
-
                 <div className='flex flex-col flex-grow'>
 
                 </div>
+            </RightSideBar>
 
 
-
-
-
-
-
-
-            </div>
-
-
-            {isDialogOpen && (
+            {isZoomDialogOpen && (
                 <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center">
                     <CreateZoomBlockDialog
-                        videoLength={50}
+                        videoLength={props.videoLength}
                         onSave={(e) => {
                             const isCreated = zoomHook.addRange(e)
                             if (isCreated) {
-                                closeDialog()
+                                setIsZoomDialogOpen(false)
                             }
+                        }}
+                        onClose={() => {
+                            setIsZoomDialogOpen(false)
+                        }}
+                    />
+                </div>
+            )}
+
+            {isExportDialogOpen && (
+                <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center">
+                    <VideoExporter
+                        videoSrc={props.videoSrc}
+                        zoomRange={zoomHook.zoomRange}
+                        onClose={() => {
+                            setIsExportDialogOpen(false)
                         }}
                     />
                 </div>
