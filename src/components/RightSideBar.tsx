@@ -21,7 +21,9 @@ const RightSideBar = (props: RightSideBarProps) => {
                 />
             </div>
             <Divider />
-            {props.children}
+            <div className='flex flex-col overflow-y-auto'>
+                {props.children}
+            </div>
             <Divider />
             <div className='p-2'>
                 <FilledButton

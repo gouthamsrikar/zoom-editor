@@ -25,7 +25,7 @@ function App() {
   };
 
   return (
-    <div className="text-white mac-like-bg h-screen w-screen flex flex-col justify-center items-center font-metropolis">{
+    <div className="text-white mac-like-bg h-svh w-svw flex flex-col justify-center items-center font-metropolis">{
       videoSrc && videoLength ?
         <EditorPage videoSrc={videoSrc}
           videoLength={videoLength}

@@ -25,7 +25,7 @@ const EditorPage = (props: EditorPageProps) => {
 
     const zoomHook = useZoomHook(props.videoLength)
     return (
-        <div className='h-screen w-screen flex bg-BG_CANVAS/50 glass-effect'>
+        <div className='h-svh w-svw flex bg-BG_CANVAS/50 glass-effect'>
 
 
 
